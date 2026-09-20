@@ -1,59 +1,14 @@
-name: Build Custom RustDesk Client
+name: Build Custom RustDesk
 
 on:
+  workflow_dispatch:
   push:
     branches: [ master ]
-  workflow_dispatch:
 
 jobs:
   build-windows:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-          fetch-depth: 0
-
-      - name: Install dependencies
-        run: |
-          choco install -y llvm
-          choco install -y nasm
-          choco install -y protoc
-
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: x86_64-pc-windows-msvc
-
-      - name: Install Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-
-      - name: Enable Flutter desktop
-        run: flutter config --enable-windows-desktop
-
-      - name: Install vcpkg
-        run: |
-          git clone https://github.com/microsoft/vcpkg.git C:\vcpkg
-          C:\vcpkg\bootstrap-vcpkg.bat
-          C:\vcpkg\vcpkg.exe install libvpx:x64-windows-static libyuv:x64-windows-static opus:x64-windows-static aom:x64-windows-static
-
-      - name: Build
-        env:
-          VCPKG_ROOT: C:\vcpkg
-          SUPRA_VERSION: 1.0.0
-          RELEASE: true
-        run: |
-          flutter pub get
-          cargo build --release --features "flutter"
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: rustdesk-windows-custom
-          path: |
-            target/release/rustdesk.exe
-            target/release/librustdesk.so
-          retention-days: 7
+    uses: ./.github/workflows/flutter-build.yml
+    secrets: inherit
+    with:
+      upload-artifact: true
+      upload-tag: "custom"
