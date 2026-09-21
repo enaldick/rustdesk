@@ -1,0 +1,14 @@
+name: Test Simple
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run test
+        run: echo "Hello World" && echo "Build started successfully"
